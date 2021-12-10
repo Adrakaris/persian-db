@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Jake-Persian" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="hu.yijun.Main" />
+    <module name="jake-persian" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
