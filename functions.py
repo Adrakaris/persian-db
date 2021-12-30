@@ -1,24 +1,39 @@
-from csv import reader
+from csv import reader, writer
 from typing import List, Tuple, TypeVar
 
 T = TypeVar('T')
 Table = List[List[T]]
 
 # functions
-def read_csv(filename: str) -> Table[str]:
+def read_csv(filename: str) -> Tuple[Table[str], str]:
     """
     Reads a csv file into a 2D array
     
     :param filename: file to read
-    :return: csv entries
+    :return: csv entries, headings
     """
     dictionary: Table[str] = []
+    headings:str = ""
     with open(filename, encoding="utf-8") as fn:
         text = reader(fn, delimiter=";")
-        next(text)  # skip the header
+        headings = next(text)  # skip the header
         for ln in text:
             dictionary.append(ln)
-    return dictionary
+    return dictionary, headings
+
+
+def write_csv(filename:str, headings:str, table:Table[str]):
+    """Writes a 2D array to a csv file
+    
+    :param filename: file to write
+    :param headings: headings to write
+    :param table: 2D array to write
+    """
+    with open(filename, 'w', newline='', encoding="utf-8") as fn:
+        wrn = writer(fn, delimiter=";")
+        wrn.writerow(headings)
+        for row in table:
+            wrn.writerow(row)
     
     
 def linearly_find(target_and_coln:List[Tuple[str, int]], dict:Table[str]) -> Table[str]:
