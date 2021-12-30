@@ -5,7 +5,7 @@ T = TypeVar('T')
 Table = List[List[T]]
 
 # functions
-def read_csv(filename: str) -> Tuple[Table[str], str]:
+def read_csv(filename: str) -> Tuple[Table[str], List[str]]:
     """
     Reads a csv file into a 2D array
     
@@ -13,7 +13,7 @@ def read_csv(filename: str) -> Tuple[Table[str], str]:
     :return: csv entries, headings
     """
     dictionary: Table[str] = []
-    headings:str = ""
+    headings:List[str] = []
     with open(filename, encoding="utf-8") as fn:
         text = reader(fn, delimiter=";")
         headings = next(text)  # skip the header
@@ -51,8 +51,13 @@ def linearly_find(target_and_coln:List[Tuple[str, int]], dict:Table[str]) -> Tab
         Table[str]: An aggregate of all results
     """
     out_table: Table[str] = []
+    # print(target_and_coln)
     for row in dict:
+        valid = True
         for target, coln in target_and_coln:
-            if row[coln] == target:
-                out_table.append(row)
+            if row[coln] not in target:
+                valid = False
+                break
+        if valid:
+            out_table.append(row)
     return out_table
