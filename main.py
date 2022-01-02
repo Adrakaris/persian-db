@@ -15,15 +15,16 @@ TRANSMISSION = 7
 MED = 9
 MEDIAN = 10
 
+file_name = "persianDict.csv"
 dictionary: Table[str]
 HEADERS: List[str]
 try:
-    dictionary, HEADERS = read_csv("persianDict.csv")
+    dictionary, HEADERS = read_csv(file_name)
 except FileNotFoundError as e:
     print("Error: persianDict.csv not found")
-    tryagain:str = input("Enter the file name of the dictionary (including the .csv extension): ")
+    file_name = input("Enter the file name of the dictionary (including the .csv extension): ")
     try:
-        dictionary, HEADERS = read_csv(tryagain)
+        dictionary, HEADERS = read_csv(file_name)
     except FileNotFoundError as e:
         with open("error-file-not-found.log", "w") as fn:
             fn.write("File not found: persianDict.csv\n")
@@ -142,6 +143,9 @@ class Window:
         self.saveButton = Button(self.buttonFrame, text="Save", command=self.save)
         self.saveButton.grid(row=0, column=1, sticky=E+W+N+S)
         
+        self.clearButton = Button(self.buttonFrame, text="Clear", command=self._clear_data)
+        self.clearButton.grid(row=1, column=0, columnspan=2, sticky=E+W+N+S)
+        
     def _ass_search(self):
         """
         Assembes the buttons of search window
@@ -153,48 +157,56 @@ class Window:
         self.targLLabel.grid(row=2, column=0, sticky=E)
         self.targLang = Text(self.mainFrame, height=1, width=20, font=("Georgia", 10))
         self.targLang.grid(row=2, column=1, sticky=W)
+        self.targLang.bind("<Tab>", self.focusNext)
         
         # target word
         self.targWLabel = Label(self.mainFrame, text="Target Word:",font = ("Georgia", 10))
         self.targWLabel.grid(row=3, column=0, sticky=E)
         self.targWord = Text(self.mainFrame, height=1, width=20, font=("Georgia", 10))
         self.targWord.grid(row=3, column=1, sticky=W)
+        self.targWord.bind("<Tab>", self.focusNext)
         
         # ariya source
         self.ariyaSLabel = Label(self.mainFrame, text="Ariya Source:",font = ("Georgia", 10))
         self.ariyaSLabel.grid(row=4, column=0, sticky=E)
         self.ariyaSource = Text(self.mainFrame, height=1, width=20, font=("Georgia", 10))
         self.ariyaSource.grid(row=4, column=1, sticky=W)
+        self.ariyaSource.bind("<Tab>", self.focusNext)
         
         # definition
         self.defLabel = Label(self.mainFrame, text="Definition:",font = ("Georgia", 10))
         self.defLabel.grid(row=5, column=0, sticky=E)
         self.definition = Text(self.mainFrame, height=3, width=20, font=("Georgia", 10))
         self.definition.grid(row=5, column=1, sticky=W)
+        self.definition.bind("<Tab>", self.focusNext)
         
         # tavernier
         self.tavenierLabel = Label(self.mainFrame, text="Tavernier:",font = ("Georgia", 10))
         self.tavenierLabel.grid(row=6, column=0, sticky=E)
         self.tavernier = Text(self.mainFrame, height=1, width=20, font=("Georgia", 10))
         self.tavernier.grid(row=6, column=1, sticky=W)
+        self.tavernier.bind("<Tab>", self.focusNext)
         
         # variants
         self.variantsLabel = Label(self.mainFrame, text="Variants:",font = ("Georgia", 10))
         self.variantsLabel.grid(row=7, column=0, sticky=E)
         self.variants = Text(self.mainFrame, height=1, width=20, font=("Georgia", 10))
         self.variants.grid(row=7, column=1, sticky=W)
+        self.variants.bind("<Tab>", self.focusNext)
         
         # type
         self.typeLabel = Label(self.mainFrame, text="Type:",font = ("Georgia", 10))
         self.typeLabel.grid(row=8, column=0, sticky=E)
         self.types = Text(self.mainFrame, height=1, width=20, font=("Georgia", 10))
         self.types.grid(row=8, column=1, sticky=W)
+        self.types.bind("<Tab>", self.focusNext)
         
         # transmission
         self.transLabel = Label(self.mainFrame, text="Transmission:",font = ("Georgia", 10))
         self.transLabel.grid(row=9, column=0, sticky=E)
         self.transmission = Text(self.mainFrame, height=1, width=20, font=("Georgia", 10))
         self.transmission.grid(row=9, column=1, sticky=W)
+        self.transmission.bind("<Tab>", self.focusNext)
     
     def _extract_data(self) -> List[Tuple[str, int]]:
         # extract data from text boxes
@@ -222,6 +234,17 @@ class Window:
             
         return data
     
+    def _clear_data(self):
+        # clear text boxes
+        self.targLang.delete("1.0", "end")
+        self.targWord.delete("1.0", "end")
+        self.ariyaSource.delete("1.0", "end")
+        self.definition.delete("1.0", "end")
+        self.tavernier.delete("1.0", "end")
+        self.variants.delete("1.0", "end")
+        self.types.delete("1.0", "end")
+        self.transmission.delete("1.0", "end")
+    
     def search(self):
         data: List[Tuple[str, int]] = self._extract_data()
         
@@ -236,10 +259,26 @@ class Window:
         resultWindow: ResultsWindow = ResultsWindow(Toplevel(self.base), result)
         
     def save(self):
-        pass
+        """Save data to the dictionary. On close, these will be written to the file. """
+        data: List[Tuple[str, int]] = self._extract_data()
+        saveData = ["" for _ in range(11)]
+        for item in data:
+            saveData[item[1]] = item[0]
+        dictionary.append(saveData)
+        self._clear_data()
+        self.status.set("Added to dictionary")
+        
+    def onClose(self):
+        write_csv(file_name, HEADERS, dictionary)
+        self.base.destroy()
+        
+    def focusNext(self, event):
+        event.widget.tk_focusNext().focus()
+        return("break")
 
 
 if __name__ == '__main__':
     root:Tk = Tk()
     gui:Window = Window(root)
+    root.protocol("WM_DELETE_WINDOW", gui.onClose)
     root.mainloop()
