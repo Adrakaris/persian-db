@@ -1,5 +1,5 @@
-from tkinter import Button, Label, StringVar, Tk, Toplevel, Text
-from tkinter.constants import E, S, W
+from tkinter import Button, Frame, Label, StringVar, Tk, Toplevel, Text
+from tkinter.constants import E, N, S, W
 from typing import List, Tuple
 from functions import read_csv, linearly_find, write_csv, Table
 
@@ -17,7 +17,17 @@ MEDIAN = 10
 
 dictionary: Table[str]
 HEADERS: List[str]
-dictionary, HEADERS = read_csv("persianDict.csv")
+try:
+    dictionary, HEADERS = read_csv("persianDict.csv")
+except FileNotFoundError as e:
+    print("Error: persianDict.csv not found")
+    tryagain:str = input("Enter the file name of the dictionary (including the .csv extension): ")
+    try:
+        dictionary, HEADERS = read_csv(tryagain)
+    except FileNotFoundError as e:
+        with open("error-file-not-found.log", "w") as fn:
+            fn.write("File not found: persianDict.csv\n")
+        exit(1)
 
 # write_csv("test.csv", HEADERS, dictionary)  # working
 
@@ -43,13 +53,13 @@ class ResultsWindow:
         # target word
         self.targWLabel = Label(self.base, text="Target Word:", font = ("Georgia", 10))
         self.targWLabel.grid(row=0, column=1, sticky=E+W)
-        self.targWord = Text(self.base, height=50, width=30, font=("Georgia", 10))
+        self.targWord = Text(self.base, height=50, width=20, font=("Georgia", 10))
         self.targWord.grid(row=1, column=1, sticky=W)
         
         # ariya source
         self.ariyaSLabel = Label(self.base, text="Ariya Source:", font = ("Georgia", 10))
         self.ariyaSLabel.grid(row=0, column=2, sticky=E+W)
-        self.ariyaSource = Text(self.base, height=50, width=30, font=("Georgia", 10))
+        self.ariyaSource = Text(self.base, height=50, width=20, font=("Georgia", 10))
         self.ariyaSource.grid(row=1, column=2, sticky=W)
         
         # definition
@@ -67,7 +77,7 @@ class ResultsWindow:
         # variants
         self.variantsLabel = Label(self.base, text="Variants:", font = ("Georgia", 10))
         self.variantsLabel.grid(row=0, column=5, sticky=E+W)
-        self.variants = Text(self.base, height=50, width=10, font=("Georgia", 10))
+        self.variants = Text(self.base, height=50, width=30, font=("Georgia", 10))
         self.variants.grid(row=1, column=5, sticky=W)
         
         # type
@@ -105,20 +115,26 @@ class Window:
         self.base = base
         self.base.title("Persian Dictionary")
         
+        self.mainFrame = Frame(self.base)
+        self.mainFrame.grid(row=0, column=0, sticky=N+S+E+W)
+        
+        self.buttonFrame = Frame(self.base)
+        self.buttonFrame.grid(row=1, column=0, sticky=N+S+E+W)
+        
         # title stuff
-        self.title = Label(base, text="Persian Dictionary", font=("Georgia", 20))
+        self.title = Label(self.mainFrame, text="Persian Dictionary", font=("Georgia", 20))
         self.title.grid(row=0, column=0, columnspan=2, sticky=E+W)
         
         self.status = StringVar()
-        self.statusLabel = Label(base, textvariable=self.status, font=("Georgia", 10))
+        self.statusLabel = Label(self.mainFrame, textvariable=self.status, font=("Georgia", 10))
         self.statusLabel.grid(row=1, column=0, columnspan=2, sticky=E+W)
         
         self._ass_search()
         
         # submit button stuff
         # have a search button on the left
-        self.searchButton = Button(base, text="Search", command=self.search)
-        self.searchButton.grid(row=10, column=0, sticky=E+W)
+        self.searchButton = Button(self.buttonFrame, text="Search", command=self.search)
+        self.searchButton.grid(row=0, column=0, sticky=E+W)
         
     def _ass_search(self):
         """
@@ -127,51 +143,51 @@ class Window:
         Two columns
         """
         # make target language box
-        self.targLLabel = Label(self.base, text="Target Language:",font = ("Georgia", 10))
+        self.targLLabel = Label(self.mainFrame, text="Target Language:",font = ("Georgia", 10))
         self.targLLabel.grid(row=2, column=0, sticky=E)
-        self.targLang = Text(self.base, height=1, width=20, font=("Georgia", 10))
+        self.targLang = Text(self.mainFrame, height=1, width=20, font=("Georgia", 10))
         self.targLang.grid(row=2, column=1, sticky=W)
         
         # target word
-        self.targWLabel = Label(self.base, text="Target Word:",font = ("Georgia", 10))
+        self.targWLabel = Label(self.mainFrame, text="Target Word:",font = ("Georgia", 10))
         self.targWLabel.grid(row=3, column=0, sticky=E)
-        self.targWord = Text(self.base, height=1, width=20, font=("Georgia", 10))
+        self.targWord = Text(self.mainFrame, height=1, width=20, font=("Georgia", 10))
         self.targWord.grid(row=3, column=1, sticky=W)
         
         # ariya source
-        self.ariyaSLabel = Label(self.base, text="Ariya Source:",font = ("Georgia", 10))
+        self.ariyaSLabel = Label(self.mainFrame, text="Ariya Source:",font = ("Georgia", 10))
         self.ariyaSLabel.grid(row=4, column=0, sticky=E)
-        self.ariyaSource = Text(self.base, height=1, width=20, font=("Georgia", 10))
+        self.ariyaSource = Text(self.mainFrame, height=1, width=20, font=("Georgia", 10))
         self.ariyaSource.grid(row=4, column=1, sticky=W)
         
         # definition
-        self.defLabel = Label(self.base, text="Definition:",font = ("Georgia", 10))
+        self.defLabel = Label(self.mainFrame, text="Definition:",font = ("Georgia", 10))
         self.defLabel.grid(row=5, column=0, sticky=E)
-        self.definition = Text(self.base, height=3, width=20, font=("Georgia", 10))
+        self.definition = Text(self.mainFrame, height=3, width=20, font=("Georgia", 10))
         self.definition.grid(row=5, column=1, sticky=W)
         
         # tavernier
-        self.tavenierLabel = Label(self.base, text="Tavernier:",font = ("Georgia", 10))
+        self.tavenierLabel = Label(self.mainFrame, text="Tavernier:",font = ("Georgia", 10))
         self.tavenierLabel.grid(row=6, column=0, sticky=E)
-        self.tavernier = Text(self.base, height=1, width=20, font=("Georgia", 10))
+        self.tavernier = Text(self.mainFrame, height=1, width=20, font=("Georgia", 10))
         self.tavernier.grid(row=6, column=1, sticky=W)
         
         # variants
-        self.variantsLabel = Label(self.base, text="Variants:",font = ("Georgia", 10))
+        self.variantsLabel = Label(self.mainFrame, text="Variants:",font = ("Georgia", 10))
         self.variantsLabel.grid(row=7, column=0, sticky=E)
-        self.variants = Text(self.base, height=1, width=20, font=("Georgia", 10))
+        self.variants = Text(self.mainFrame, height=1, width=20, font=("Georgia", 10))
         self.variants.grid(row=7, column=1, sticky=W)
         
         # type
-        self.typeLabel = Label(self.base, text="Type:",font = ("Georgia", 10))
+        self.typeLabel = Label(self.mainFrame, text="Type:",font = ("Georgia", 10))
         self.typeLabel.grid(row=8, column=0, sticky=E)
-        self.types = Text(self.base, height=1, width=20, font=("Georgia", 10))
+        self.types = Text(self.mainFrame, height=1, width=20, font=("Georgia", 10))
         self.types.grid(row=8, column=1, sticky=W)
         
         # transmission
-        self.transLabel = Label(self.base, text="Transmission:",font = ("Georgia", 10))
+        self.transLabel = Label(self.mainFrame, text="Transmission:",font = ("Georgia", 10))
         self.transLabel.grid(row=9, column=0, sticky=E)
-        self.transmission = Text(self.base, height=1, width=20, font=("Georgia", 10))
+        self.transmission = Text(self.mainFrame, height=1, width=20, font=("Georgia", 10))
         self.transmission.grid(row=9, column=1, sticky=W)
     
     def _extract_data(self) -> List[Tuple[str, int]]:

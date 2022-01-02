@@ -55,7 +55,7 @@ def linearly_find(target_and_coln:List[Tuple[str, int]], dict:Table[str]) -> Tab
     for row in dict:
         valid = True
         for target, coln in target_and_coln:
-            if row[coln] not in target:
+            if target.lower() not in row[coln].lower():  # row[coln].lower() not in target.lower():
                 valid = False
                 break
         if valid:
