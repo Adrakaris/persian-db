@@ -1,3 +1,6 @@
+# Persian dictionary look up tool
+# (c) Yijun H. 2022
+
 from tkinter import Button, Frame, Grid, Label, StringVar, Tk, Toplevel, Text
 from tkinter.constants import E, N, S, W
 from typing import List, Tuple
