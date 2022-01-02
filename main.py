@@ -1,4 +1,4 @@
-from tkinter import Button, Frame, Label, StringVar, Tk, Toplevel, Text
+from tkinter import Button, Frame, Grid, Label, StringVar, Tk, Toplevel, Text
 from tkinter.constants import E, N, S, W
 from typing import List, Tuple
 from functions import read_csv, linearly_find, write_csv, Table
@@ -120,6 +120,9 @@ class Window:
         
         self.buttonFrame = Frame(self.base)
         self.buttonFrame.grid(row=1, column=0, sticky=N+S+E+W)
+        Grid.rowconfigure(self.buttonFrame, 0, weight=1)
+        Grid.columnconfigure(self.buttonFrame, 1, weight=1)
+        Grid.columnconfigure(self.buttonFrame, 0, weight=1)
         
         # title stuff
         self.title = Label(self.mainFrame, text="Persian Dictionary", font=("Georgia", 20))
@@ -134,7 +137,10 @@ class Window:
         # submit button stuff
         # have a search button on the left
         self.searchButton = Button(self.buttonFrame, text="Search", command=self.search)
-        self.searchButton.grid(row=0, column=0, sticky=E+W)
+        self.searchButton.grid(row=0, column=0, sticky=E+W+N+S)
+        
+        self.saveButton = Button(self.buttonFrame, text="Save", command=self.save)
+        self.saveButton.grid(row=0, column=1, sticky=E+W+N+S)
         
     def _ass_search(self):
         """
@@ -195,8 +201,6 @@ class Window:
         data: List[Tuple[str, int]] = []
         buffer: str = ""
         
-        # TODO: searching aitn working
-        
         if (buffer := self.targLang.get("1.0", "end")) != "\n":
             data.append((buffer[:-1], TARG_LANG))
         if (buffer := self.targWord.get("1.0", "end")) != "\n":
@@ -214,7 +218,7 @@ class Window:
         if (buffer := self.transmission.get("1.0", "end")) != "\n":
             data.append((buffer[:-1], TRANSMISSION))
             
-        print(data)
+        # print(data)
             
         return data
     
@@ -230,6 +234,9 @@ class Window:
         
         # open a results window
         resultWindow: ResultsWindow = ResultsWindow(Toplevel(self.base), result)
+        
+    def save(self):
+        pass
 
 
 if __name__ == '__main__':
